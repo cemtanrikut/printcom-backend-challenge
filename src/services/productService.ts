@@ -14,4 +14,19 @@ export class ProductService {
           configurations: [],
         };
       }
+
+      // add product prop service
+      addProductProperty(sku: string, propertyName: string, options: string[]): void {
+        const product = this.products[sku];
+        if (!product) {
+            throw new Error(`Product with SKU ${sku} does not exist.`);
+        }            
+        product.properties.push({
+            name: propertyName,
+            options: options.map((option) => ({ name: propertyName, value: option })),
+        });
+      }
+
+
+
 }
