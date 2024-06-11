@@ -79,6 +79,18 @@ class PrintCom {
         product.properties = product.properties.filter((prop) => prop.name !== propertyName);
     }
 
-
+    // User Story 3: Configure Product Pricing
+    setProductConfiguration(
+        sku: string,
+        propertyValues: { [key: string]: string },
+        purchaseCost: number,
+        margin: number
+    ): void {
+        const product = this.products[sku];
+        if (!product) {
+        throw new Error(`Product with SKU ${sku} does not exist.`);
+        }
+        product.configurations.push({ properties: propertyValues, purchaseCost, margin });
+    }
 
 }  
