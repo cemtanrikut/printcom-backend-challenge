@@ -41,4 +41,22 @@ export class ProductService {
         product.configurations.push({ properties: propertyValues, purchaseCost, margin });
       }
 
+      calculateSalesPrice(sku: string, propertyValues: { [key: string]: string }, copies: number): number {
+        const product = this.products[sku];
+        if (!product) {
+            throw new Error(`Product with SKU ${sku} does not exist.`);
+        }
+        const config = product.configurations.find((conf) =>
+        Object.entries(propertyValues).every(
+            ([key, value]) => conf.properties[key] === value)
+        );
+        if (!config) {
+            throw new Error(`No configuration found for the given property values.`);
+        }
+        const basePrice = config.purchaseCost * copies;
+        const salesPrice = basePrice * (1 + config.margin / 100);
+        return salesPrice;
+      }
 }
+
+export default new ProductService();
