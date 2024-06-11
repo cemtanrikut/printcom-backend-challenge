@@ -35,6 +35,16 @@ class PrintCom {
         configurations: [],
       };
     }
-
     
+    updateProductSKU(oldSku: string, newSku: string): void {
+        if (!this.products[oldSku]) {
+          throw new Error(`Product with SKU ${oldSku} does not exist.`);
+        }
+        if (this.products[newSku]) {
+          throw new Error(`Product with SKU ${newSku} already exists.`);
+        }
+        this.products[newSku] = { ...this.products[oldSku], sku: newSku };
+        delete this.products[oldSku];
+      }
+
 }  
