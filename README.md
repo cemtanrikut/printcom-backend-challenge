@@ -23,62 +23,99 @@ npm install
 
 ## Usage
 
-Here's an example of how to use the PrintCom class to manage products and calculate sales prices.
+To start the server, use the following command:
 
-```typescript
-import { PrintCom } from './src/PrintCom';
-
-// Create an instance of PrintCom
-const printCom = new PrintCom();
-
-// Create a new product
-printCom.createProduct('BUSINESS_CARD');
-
-// Add properties to the product
-printCom.addProductProperty('BUSINESS_CARD', 'Size', ['A5', 'A4']);
-printCom.addProductProperty('BUSINESS_CARD', 'PaperType', ['Glossy', 'Matte']);
-
-// Set product configuration
-printCom.setProductConfiguration('BUSINESS_CARD', { Size: 'A5', PaperType: 'Glossy' }, 0.5, 20);
-
-// Calculate the sales price
-const salesPrice = printCom.calculateSalesPrice('BUSINESS_CARD', { Size: 'A5', PaperType: 'Glossy' }, 100);
-console.log(`Sales Price: $${salesPrice.toFixed(2)}`);
+```bash
+npm run dev
 ```
 
 ## API Documentation
 
-### PrintCom Class
+### Endpoints
 
-Methods
+POST /api/products
 
-- createProduct(sku: string): void
+Create a new product.
 
-Creates a new product with the specified SKU.
+#### Request Body:
 
-- updateProductSKU(oldSku: string, newSku: string): void
+```json
+{
+  "sku": "BUSINESS_CARD"
+}
+```
 
-Updates the SKU of an existing product.
+#### Response
 
-- addProductProperty(sku: string, propertyName: string, options: string[]): void
+```json
+{
+  "message": "Product created successfully"
+}
+```
 
-Adds a property to a product.
+POST /api/products/:sku/properties
 
-- updateProductProperty(sku: string, propertyName: string, options: string[]): void
+Add a property to a product.
 
-Updates a property of a product.
+#### Request Body:
 
-- removeProductProperty(sku: string, propertyName: string): void
+```json
+{
+  "propertyName": "Size",
+  "options": ["A5", "A4"]
+}
+```
 
-Removes a property from a product.
+#### Response
 
-- setProductConfiguration(sku: string, propertyValues: { [key: string]: string }, purchaseCost: number, margin: number): void
+```json
+{
+  "message": "Property added successfully"
+}
+```
 
-Sets the configuration for a product.
+POST /api/products/:sku/configurations
 
-- calculateSalesPrice(sku: string, propertyValues: { [key: string]: string }, copies: number): number
+Set a configuration for a product.
 
-Calculates the sales price for a product configuration based on the purchase cost, margin, and number of copies.
+#### Request Body
+
+```json
+{
+  "propertyValues": { "Size": "A5", "PaperType": "Glossy" },
+  "purchaseCost": 0.5,
+  "margin": 20
+}
+```
+
+#### Response
+
+```json
+{
+  "message": "Configuration set successfully"
+}
+```
+
+GET /api/products/:sku/price
+
+Calculate the sales price for a product configuration and quantity.
+
+#### Request Params:
+
+```json
+{
+  "propertyValues": { "Size": "A5", "PaperType": "Glossy" },
+  "copies": 100
+}
+```
+
+#### Response
+
+```json
+{
+  "salesPrice": 60
+}
+```
 
 ## Running Tests 
 
@@ -90,24 +127,70 @@ npm test
 
 ### Example Tests
 
-The tests are located in the tests/PrintCom.test.ts file and cover various functionalities of the PrintCom class.
+The tests are located in the tests/ directory and cover various functionalities of the REST API.
 
 ```typescript
-import { PrintCom } from '../src/PrintCom';
+import request from 'supertest';
+import app from '../src/app';
 
-describe('PrintCom', () => {
-  let printCom: PrintCom;
-
-  beforeEach(() => {
-    printCom = new PrintCom();
+describe('Product API', () => {
+  test('should create a product', async () => {
+    const response = await request(app)
+      .post('/api/products')
+      .send({ sku: 'BUSINESS_CARD' });
+    expect(response.status).toBe(201);
+    expect(response.body.message).toBe('Product created successfully');
   });
 
-  test('should create a product', () => {
-    printCom.createProduct('BUSINESS_CARD');
-    expect(printCom['products']['BUSINESS_CARD']).toBeDefined();
+  test('should add a product property', async () => {
+    await request(app)
+      .post('/api/products')
+      .send({ sku: 'BUSINESS_CARD' });
+    const response = await request(app)
+      .post('/api/products/BUSINESS_CARD/properties')
+      .send({ propertyName: 'Size', options: ['A5', 'A4'] });
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('Property added successfully');
   });
 
-  // Add more tests as needed...
+  test('should set product configuration', async () => {
+    await request(app)
+      .post('/api/products')
+      .send({ sku: 'BUSINESS_CARD' });
+    const response = await request(app)
+      .post('/api/products/BUSINESS_CARD/configurations')
+      .send({
+        propertyValues: { Size: 'A5', PaperType: 'Glossy' },
+        purchaseCost: 0.5,
+        margin: 20
+      });
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('Configuration set successfully');
+  });
+
+  test('should calculate sales price', async () => {
+    await request(app)
+      .post('/api/products')
+      .send({ sku: 'BUSINESS_CARD' });
+    await request(app)
+      .post('/api/products/BUSINESS_CARD/properties')
+      .send({ propertyName: 'Size', options: ['A5', 'A4'] });
+    await request(app)
+      .post('/api/products/BUSINESS_CARD/configurations')
+      .send({
+        propertyValues: { Size: 'A5', PaperType: 'Glossy' },
+        purchaseCost: 0.5,
+        margin: 20
+      });
+    const response = await request(app)
+      .get('/api/products/BUSINESS_CARD/price')
+      .send({
+        propertyValues: { Size: 'A5', PaperType: 'Glossy' },
+        copies: 100
+      });
+    expect(response.status).toBe(200);
+    expect(response.body.salesPrice).toBe(60);
+  });
 });
 ```
 
