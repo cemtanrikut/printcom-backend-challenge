@@ -19,3 +19,22 @@ type ProductOption = {
     properties: ProductProperty[];
     configurations: ProductConfiguration[];
   };
+
+
+class PrintCom {
+    private products: { [sku: string]: Product } = {}; // In-memory data store for products
+  
+    // User Story 1: Manage Products
+    createProduct(sku: string): void {
+      if (this.products[sku]) {
+        throw new Error(`Product with SKU ${sku} already exists.`);
+      }
+      this.products[sku] = {
+        sku,
+        properties: [],
+        configurations: [],
+      };
+    }
+
+    
+}  
