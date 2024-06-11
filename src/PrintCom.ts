@@ -1,27 +1,27 @@
-type ProductOption = {
+  export type ProductOption = {
     name: string;
     value: string;
   };
   
-  type ProductProperty = {
+  export type ProductProperty = {
     name: string;
     options: ProductOption[];
   };
   
-  type ProductConfiguration = {
+  export type ProductConfiguration = {
     properties: { [key: string]: string };
     purchaseCost: number;
     margin: number;
   };
   
-  type Product = {
+  export type Product = {
     sku: string;
     properties: ProductProperty[];
     configurations: ProductConfiguration[];
   };
 
 
-class PrintCom {
+export class PrintCom {
     private products: { [sku: string]: Product } = {}; // In-memory data store for products
   
     // User Story 1: Manage Products
