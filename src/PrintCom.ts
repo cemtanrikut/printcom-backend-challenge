@@ -59,4 +59,18 @@ class PrintCom {
         });
     }
 
+    updateProductProperty(sku: string, propertyName: string, options: string[]): void {
+        const product = this.products[sku];
+        if (!product) {
+          throw new Error(`Product with SKU ${sku} does not exist.`);
+        }
+        const property = product.properties.find((prop) => prop.name === propertyName);
+        if (!property) {
+          throw new Error(`Property ${propertyName} does not exist for product with SKU ${sku}.`);
+        }
+        property.options = options.map((option) => ({ name: propertyName, value: option }));
+    }
+
+
+
 }  
