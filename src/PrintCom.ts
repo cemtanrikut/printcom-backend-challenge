@@ -35,7 +35,7 @@ class PrintCom {
         configurations: [],
       };
     }
-    
+
     updateProductSKU(oldSku: string, newSku: string): void {
         if (!this.products[oldSku]) {
           throw new Error(`Product with SKU ${oldSku} does not exist.`);
@@ -46,5 +46,17 @@ class PrintCom {
         this.products[newSku] = { ...this.products[oldSku], sku: newSku };
         delete this.products[oldSku];
       }
+
+    // User Story 2: Define Product Properties
+    addProductProperty(sku: string, propertyName: string, options: string[]): void {
+        const product = this.products[sku];
+        if (!product) {
+            throw new Error(`Product with SKU ${sku} does not exist.`);
+        }
+        product.properties.push({
+            name: propertyName,
+            options: options.map((option) => ({ name: propertyName, value: option })),
+        });
+    }
 
 }  
